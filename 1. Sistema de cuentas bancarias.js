@@ -1,18 +1,24 @@
 class CuentaBancaria {
     #saldo;
     constructor(numero, titular, saldo) {
-        this.numero = numero;
-        this.titular = titular;
-        this.#saldo = saldo >= 0 ? saldo : 0;
-        if (saldo < 0) {
-            console.log("El saldo inicial no puede ser negativo");
+        if (!Number.isInteger(numero) || numero <= 0) {
+            throw new Error("Número de cuenta inválido");
         }
+        if (typeof titular !== "string" || !titular.trim()) {
+            throw new Error("El titular es obligatorio");
+        }
+        if (!Number.isFinite(saldo) || saldo < 0) {
+            throw new Error("El saldo inicial no puede ser negativo o inválido");
+        }
+        this.numero = numero;
+        this.titular = titular.trim();
+        this.#saldo = saldo;
     }
     consultarSaldo() {
         return this.#saldo;
     }
     consignar(valor) {
-        if (valor <= 0) {
+        if (!Number.isFinite(valor) || valor <= 0) {
             console.log("Valor de consignación inválido");
             return false;
         }
@@ -20,7 +26,7 @@ class CuentaBancaria {
         return true;
     }
     retirar(valor) {
-        if (valor <= 0) {
+        if (!Number.isFinite(valor) || valor <= 0) {
             console.log("El retiro debe ser mayor que cero");
             return false;
         }
@@ -38,6 +44,7 @@ class CuentaAhorros extends CuentaBancaria {
             console.log("Saldo insuficiente en la cuenta de ahorros");
             return false;
         }
+
         return super.retirar(valor);
     }
 }
@@ -76,24 +83,24 @@ function consultarCuenta(numero) {
         "Titular:", cuenta.titular,
         "| Saldo:", cuenta.consultarSaldo()
     );
-
     return cuenta;
 }
 agregarCuenta(new CuentaAhorros(1, "Andres", 1000000));
-agregarCuenta(new CuentaCorriente(2, "juan Camilo", 800000));
+agregarCuenta(new CuentaCorriente(2, "Juan Camilo", 800000));
 cuentas[0].retirar(100000);
 cuentas[1].retirar(200000);
-
 cuentas[0].consignar(0);
 cuentas[0].consignar(-5000);
 cuentas[0].retirar(2000000);
-
+cuentas[1].retirar(600000);
 agregarCuenta(new CuentaAhorros(1, "Luisa", 50000));
-
 consultarCuenta(99);
-
+try {
+    new CuentaAhorros(3, "Carlos", -50000);
+} catch (error) {
+    console.log("Error controlado:", error.message);
+}
 console.log("Saldos finales:");
-
 cuentas.forEach(cuenta => {
     console.log(
         cuenta.numero,
